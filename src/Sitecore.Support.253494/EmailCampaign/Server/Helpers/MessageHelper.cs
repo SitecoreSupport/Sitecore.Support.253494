@@ -1,8 +1,12 @@
 ﻿namespace Sitecore.Support.EmailCampaign.Server.Helpers
 {
+  using Microsoft.Extensions.DependencyInjection;
   using Sitecore;
+  using Sitecore.Abstractions;
+  using Sitecore.Configuration.KnownSettings;
   using Sitecore.Data;
   using Sitecore.Data.Items;
+  using Sitecore.DependencyInjection;
   using Sitecore.Diagnostics;
   using Sitecore.EmailCampaign.Server.Helpers;
   using Sitecore.Framework.Conditions;
@@ -20,6 +24,7 @@
     private EcmDataProvider _dataProvider;
     private readonly IExmCampaignService _exmCampaignService;
     private readonly IManagerRootService _managerRootService;
+    private CoreSettings coreSettings;
 
     public MessageHelper(EcmDataProvider dataProvider, IExmCampaignService exmCampaignService, IManagerRootService managerRootService)
     {
@@ -29,6 +34,7 @@
       this._dataProvider = dataProvider;
       this._exmCampaignService = exmCampaignService;
       this._managerRootService = managerRootService;
+      coreSettings = new CoreSettings(ServiceProviderServiceExtensions.GetService<BaseSettings>(ServiceLocator.ServiceProvider));
     }
 
     public string CreateNewMessage(string managerRootId, string messageTemplateId, string messageName, string messageTypeTemplateId, string layoutId)
@@ -51,10 +57,24 @@
           return null;
         }
         Language result = null;
-        if ((!string.IsNullOrEmpty(Context.User.Profile.ContentLanguage) && Language.TryParse(Context.User.Profile.ContentLanguage, out result)) && !Util.GetContentDb().GetLanguages().Contains(result))
+
+        if (string.IsNullOrEmpty(Context.User.Profile.ContentLanguage))
         {
-          result = null;
+          if (string.IsNullOrEmpty(coreSettings.DefaultLanguage))
+          {
+            result = null;
+          }
+          else
+          {
+            Language.TryParse(coreSettings.DefaultLanguage, out result);
+
+            if (!Util.GetContentDb().GetLanguages().Contains(result))
+            {
+              result = null;
+            }
+          }
         }
+
         if (string.IsNullOrEmpty(layoutId))
         {
           item2 = MessageItemSource.Create(HttpUtility.HtmlEncode(messageName), messageTemplateId, item.ID.ToString(), this._exmCampaignService, this._managerRootService, result);

@@ -11,6 +11,7 @@
   using Sitecore.Modules.EmailCampaign.Core.Dispatch;
   using Sitecore.Services.Infrastructure.Sitecore.DependencyInjection;
   using System.Reflection;
+  using UpdateMessageHelper = Sitecore.Support.EmailCampaign.Server.Helpers.MessageHelper;
 
   internal class CustomServiceConfigurator : IServicesConfigurator
   {
@@ -30,7 +31,7 @@
       serviceCollection.AddTransient<IRecipientListService, RecipientListService>();
       serviceCollection.AddTransient<ICopyToDraftService, CopyToDraftService>();
       serviceCollection.AddTransient<IMessageVariantsService, MessageVariantsService>();
-      serviceCollection.AddTransient<IMessageHelper, MessageHelper>();
+      serviceCollection.AddTransient<IMessageHelper, UpdateMessageHelper>();
       serviceCollection.AddTransient<ICanCreateService, CanCreateService>();
       serviceCollection.AddTransient<ICanDeleteService, CanDeleteService>();
       serviceCollection.AddTransient<ICreateLayoutService, CreateLayoutService>();
