@@ -66,13 +66,12 @@
           }
           else
           {
-            Language.TryParse(coreSettings.DefaultLanguage, out result);
-
-            if (!Util.GetContentDb().GetLanguages().Contains(result))
-            {
-              result = null;
-            }
+            ParseLanguage(coreSettings.DefaultLanguage, out result);
           }
+        }
+        else
+        {
+          ParseLanguage(Context.User.Profile.ContentLanguage, out result);
         }
 
         if (string.IsNullOrEmpty(layoutId))
@@ -95,6 +94,16 @@
         }
       }
       return null;
+    }
+
+    private void ParseLanguage(string language, out Language result)
+    {
+      Language.TryParse(language, out result);
+
+      if (!Util.GetContentDb().GetLanguages().Contains(result))
+      {
+        result = null;
+      }
     }
   }
 }
